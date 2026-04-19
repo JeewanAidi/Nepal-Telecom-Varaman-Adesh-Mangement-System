@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>भ्रमण आदेश - {{ order.order_id }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&family=Tiro+Devanagari+Nepali&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Mukta', 'Tiro Devanagari Nepali', Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        .print-page {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 15mm 18mm;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        /* ─── HEADER ─── */
+        .doc-header {
+            text-align: center;
+            border-bottom: 3px double #003087;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+
+        .govt-line {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .org-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #003087;
+            margin: 4px 0 2px;
+        }
+
+        .branch-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #c0002a;
+        }
+
+        .doc-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #003087;
+            margin-top: 8px;
+            letter-spacing: 2px;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .doc-title-en {
+            font-size: 11px;
+            color: #555;
+            margin-top: 2px;
+        }
+
+        /* ─── ORDER META ─── */
+        .order-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            font-size: 12px;
+        }
+
+        .order-meta .meta-box {
+            border: 1px solid #999;
+            padding: 5px 12px;
+            border-radius: 4px;
+            background: #f8f9fa;
+        }
+
+        .order-meta .meta-box span {
+            font-weight: 700;
+            color: #003087;
+        }
+
+        /* ─── FORM TABLE ─── */
+        .form-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin-bottom: 14px;
+        }
+
+        .form-table th, .form-table td {
+            border: 1px solid #999;
+            padding: 7px 10px;
+            vertical-align: top;
+        }
+
+        .form-table th {
+            background: #e8eef7;
+            font-weight: 600;
+            color: #003087;
+            width: 35%;
+            font-size: 12px;
+        }
+
+        .form-table td {
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+        .table-section-header {
+            background: #003087 !important;
+            color: white !important;
+            text-align: center;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        /* ─── STATUS BADGE ─── */
+        .status-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 11px;
+        }
+        .status-Pending { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+        .status-Active { background: #cce5ff; color: #004085; border: 1px solid #b8daff; }
+        .status-Completed { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-Cancelled { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* ─── SIGNATURE SECTION ─── */
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .sig-box {
+            flex: 1;
+            text-align: center;
+            border-top: 1px dashed #999;
+            padding-top: 8px;
+        }
+
+        .sig-label {
+            font-size: 11px;
+            color: #555;
+        }
+
+        .sig-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #003087;
+            margin-top: 3px;
+        }
+
+        .sig-space {
+            height: 40px;
+        }
+
+        /* ─── FOOTER ─── */
+        .doc-footer {
+            margin-top: 20px;
+            border-top: 2px solid #003087;
+            padding-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #777;
+        }
+
+        /* ─── WATERMARK ─── */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-35deg);
+            font-size: 70px;
+            color: rgba(0, 48, 135, 0.04);
+            font-weight: 900;
+            pointer-events: none;
+            z-index: 0;
+            white-space: nowrap;
+        }
+
+        /* ─── NTC LOGO BOX ─── */
+        .ntc-logo {
+            display: inline-block;
+            background: #c0002a;
+            color: white;
+            font-weight: 900;
+            font-size: 16px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+
+        /* ─── PRINT CONTROLS ─── */
+        .print-controls {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .btn-print {
+            background: #003087;
+            color: white;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 8px;
+            font-family: 'Mukta', sans-serif;
+        }
+
+        .btn-print:hover { background: #001f5c; }
+
+        .btn-back {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'Mukta', sans-serif;
+            text-decoration: none;
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .print-page { box-shadow: none; margin: 0; padding: 12mm 15mm; }
+            .print-controls { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Print Controls (hidden on print) -->
+<div class="print-controls">
+    <button class="btn-print" onclick="window.print()">
+        🖨️ Print / PDF बनाउनुहोस्
+    </button>
+    <a href="{% url 'travel_order_detail' order.pk %}" class="btn-back">← Back to Detail</a>
+</div>
+
+<div class="print-page">
+    <!-- Watermark -->
+    <div class="watermark">NTC</div>
+
+    <!-- HEADER -->
+    <div class="doc-header">
+        <div class="govt-line">नेपाल सरकार — Government of Nepal</div>
+        <div class="ntc-logo">NTC</div>
+        <div class="org-name">नेपाल टेलिकम</div>
+        <div class="org-name" style="font-size:15px; color:#333;">Nepal Telecom Corporation Ltd.</div>
+        <div class="branch-name">महेन्द्रनगर शाखा — Mahendranagar Branch</div>
+        <div class="doc-title">भ्रमण आदेश</div>
+        <div class="doc-title-en">TRAVEL ORDER</div>
+    </div>
+
+    <!-- ORDER META -->
+    <div class="order-meta">
+        <div class="meta-box">
+            आदेश नं. (Order No.): <span>{{ order.order_id }}</span>
+        </div>
+        <div class="meta-box">
+            मिति (Date): <span>{{ order.date|date:"d/m/Y" }}</span>
+        </div>
+        <div class="meta-box">
+            स्थिति: <span class="status-badge status-{{ order.status }}">{{ order.status }}</span>
+        </div>
+    </div>
+
+    <!-- EMPLOYEE SECTION -->
+    <table class="form-table">
+        <tr>
+            <td colspan="2" class="table-section-header">कर्मचारी विवरण — Employee Details</td>
+        </tr>
+        <tr>
+            <th>कर्मचारी नं. (Employee ID)</th>
+            <td>{{ order.employee.employee_id }}</td>
+        </tr>
+        <tr>
+            <th>नाम (Name)</th>
+            <td>
+                <strong>{{ order.employee.name }}</strong>
+                {% if order.employee.name_nepali %}
+                 / {{ order.employee.name_nepali }}
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>पद (Position)</th>
+            <td>{{ order.employee.position }}</td>
+        </tr>
+        <tr>
+            <th>विभाग/शाखा (Department)</th>
+            <td>{{ order.employee.get_department_name }}</td>
+        </tr>
+    </table>
+
+    <!-- TRAVEL SECTION -->
+    <table class="form-table">
+        <tr>
+            <td colspan="2" class="table-section-header">भ्रमण विवरण — Travel Details</td>
+        </tr>
+        <tr>
+            <th>भ्रमण स्थान (Travel Location)</th>
+            <td><strong>{{ order.travel_location }}</strong></td>
+        </tr>
+        <tr>
+            <th>भ्रमणको उद्देश्य (Purpose)</th>
+            <td>{{ order.purpose }}</td>
+        </tr>
+        <tr>
+            <th>मिति देखि (From Date)</th>
+            <td><strong>{{ order.from_date|date:"d/m/Y" }}</strong></td>
+        </tr>
+        <tr>
+            <th>मिति सम्म (To Date)</th>
+            <td><strong>{{ order.to_date|date:"d/m/Y" }}</strong></td>
+        </tr>
+        <tr>
+            <th>कुल अवधि (Duration)</th>
+            <td><strong>{{ order.get_duration_days }} दिन (Days)</strong></td>
+        </tr>
+        <tr>
+            <th>यातायातको साधन (Transport)</th>
+            <td>{{ order.get_transport_type_display }}</td>
+        </tr>
+        {% if order.vehicle_number %}
+        <tr>
+            <th>सवारी नं. (Vehicle No.)</th>
+            <td>{{ order.vehicle_number }}</td>
+        </tr>
+        {% endif %}
+    </table>
+
+    <!-- WORK DESCRIPTION -->
+    <table class="form-table">
+        <tr>
+            <td colspan="2" class="table-section-header">काम विवरण — Work Description</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="min-height: 60px; line-height: 1.8;">
+                {{ order.work_description }}
+            </td>
+        </tr>
+    </table>
+
+    <!-- REMARKS -->
+    {% if order.remarks %}
+    <table class="form-table">
+        <tr>
+            <th>कैफियत (Remarks)</th>
+            <td>{{ order.remarks }}</td>
+        </tr>
+    </table>
+    {% endif %}
+
+    <!-- SIGNATURE SECTION -->
+    <div class="signature-section">
+        <div class="sig-box">
+            <div class="sig-space"></div>
+            <div class="sig-label">कर्मचारीको दस्तखत</div>
+            <div class="sig-title">{{ order.employee.name }}</div>
+            <div class="sig-label" style="font-size:10px;">{{ order.employee.position }}</div>
+        </div>
+        <div class="sig-box">
+            <div class="sig-space"></div>
+            <div class="sig-label">स्वीकृत गर्ने अधिकारीको दस्तखत</div>
+            <div class="sig-title">{{ order.approved_by|default:"................................." }}</div>
+            <div class="sig-label" style="font-size:10px;">Approving Authority</div>
+        </div>
+        <div class="sig-box">
+            <div class="sig-space"></div>
+            <div class="sig-label">शाखा प्रमुखको दस्तखत</div>
+            <div class="sig-title">.................................</div>
+            <div class="sig-label" style="font-size:10px;">Branch Head</div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="doc-footer">
+        <div>
+            मुद्रण मिति: {% now "d/m/Y H:i" %} | Nepal Telecom — Mahendranagar Branch
+        </div>
+        <div>
+            Order ID: {{ order.order_id }} | Generated by NTC Travel Management System
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

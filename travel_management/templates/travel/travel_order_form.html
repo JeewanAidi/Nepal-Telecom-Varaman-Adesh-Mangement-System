@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3 px-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="fw-bold mb-0" style="color:#003087;">
+                <i class="bi bi-file-earmark-text me-2"></i>{{ title }}
+            </h4>
+            <small class="text-muted">भ्रमण आदेश फारम | Nepal Telecom Mahendranagar</small>
+        </div>
+        <a href="{% url 'travel_order_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header py-2 d-flex align-items-center gap-2" style="background: linear-gradient(135deg, #003087, #0052cc);">
+                    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Nepal_Telecom_Logo.svg/120px-Nepal_Telecom_Logo.svg.png"
+                         onerror="this.style.display='none'" height="28" alt="">
+                    <div>
+                        <div class="text-white fw-bold" style="font-size:0.9rem;">Nepal Telecom — Mahendranagar Branch</div>
+                        <div class="text-white-50" style="font-size:0.75rem;">भ्रमण आदेश | Travel Order Form</div>
+                    </div>
+                    {% if order %}
+                    <span class="ms-auto badge bg-light text-dark fw-bold">{{ order.order_id }}</span>
+                    {% endif %}
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" id="travelOrderForm">
+                        {% csrf_token %}
+
+                        <!-- SECTION 1: Order Info -->
+                        <div class="form-section-header">
+                            <i class="bi bi-calendar3 me-1"></i> Order Information — आदेश विवरण
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">
+                                    Order Date — मिति <span class="text-danger">*</span>
+                                </label>
+                                {{ form.date }}
+                                {% if form.date.errors %}<div class="text-danger small mt-1">{{ form.date.errors }}</div>{% endif %}
+                            </div>
+                            {% if order %}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Order ID — आदेश नं.</label>
+                                <input type="text" class="form-control" value="{{ order.order_id }}" disabled>
+                                <small class="text-muted">Auto-generated</small>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- SECTION 2: Employee Info -->
+                        <div class="form-section-header">
+                            <i class="bi bi-person-badge me-1"></i> Employee Details — कर्मचारी विवरण
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">
+                                    Employee — कर्मचारी <span class="text-danger">*</span>
+                                </label>
+                                {{ form.employee }}
+                                {% if form.employee.errors %}<div class="text-danger small mt-1">{{ form.employee.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Employee ID — कर्मचारी नं.</label>
+                                <input type="text" class="form-control" id="display_emp_id" placeholder="Auto-filled" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Position — पद</label>
+                                <input type="text" class="form-control" id="display_position" placeholder="Auto-filled on selection" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Department — विभाग</label>
+                                <input type="text" class="form-control" id="display_department" placeholder="Auto-filled on selection" disabled>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 3: Travel Details -->
+                        <div class="form-section-header">
+                            <i class="bi bi-geo-alt me-1"></i> Travel Details — भ्रमण विवरण
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold small">
+                                    Travel Location — भ्रमण स्थान <span class="text-danger">*</span>
+                                </label>
+                                {{ form.travel_location }}
+                                {% if form.travel_location.errors %}<div class="text-danger small mt-1">{{ form.travel_location.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold small">
+                                    Purpose — उद्देश्य <span class="text-danger">*</span>
+                                </label>
+                                {{ form.purpose }}
+                                {% if form.purpose.errors %}<div class="text-danger small mt-1">{{ form.purpose.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">
+                                    From Date — मिति देखि <span class="text-danger">*</span>
+                                </label>
+                                {{ form.from_date }}
+                                {% if form.from_date.errors %}<div class="text-danger small mt-1">{{ form.from_date.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">
+                                    To Date — मिति सम्म <span class="text-danger">*</span>
+                                </label>
+                                {{ form.to_date }}
+                                {% if form.to_date.errors %}<div class="text-danger small mt-1">{{ form.to_date.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">Duration — अवधि</label>
+                                <input type="text" class="form-control" id="display_duration"
+                                       placeholder="Auto-calculated" disabled>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 4: Transport -->
+                        <div class="form-section-header">
+                            <i class="bi bi-truck me-1"></i> Transport Details — यातायात विवरण
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">
+                                    Transport Type — यातायातको साधन <span class="text-danger">*</span>
+                                </label>
+                                {{ form.transport_type }}
+                                {% if form.transport_type.errors %}<div class="text-danger small mt-1">{{ form.transport_type.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Vehicle Number — सवारी नं.</label>
+                                {{ form.vehicle_number }}
+                            </div>
+                        </div>
+
+                        <!-- SECTION 5: Work Description -->
+                        <div class="form-section-header">
+                            <i class="bi bi-card-text me-1"></i> Work Description — काम विवरण
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold small">
+                                    Work Description — गर्नुपर्ने काम <span class="text-danger">*</span>
+                                </label>
+                                {{ form.work_description }}
+                                {% if form.work_description.errors %}<div class="text-danger small mt-1">{{ form.work_description.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <!-- SECTION 6: Status & Approval -->
+                        <div class="form-section-header">
+                            <i class="bi bi-shield-check me-1"></i> Status & Approval — स्थिति र स्वीकृति
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">Status — स्थिति</label>
+                                {{ form.status }}
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold small">Approved By — स्वीकृत गर्ने</label>
+                                {{ form.approved_by }}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold small">Remarks — कैफियत</label>
+                                {{ form.remarks }}
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-ntc px-4">
+                                <i class="bi bi-check-circle me-2"></i>{{ action }} Travel Order
+                            </button>
+                            <a href="{% url 'travel_order_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR: Tips -->
+        <div class="col-lg-4">
+            <div class="card mb-3 border-0" style="background:#fffbf0; border-left:4px solid #e8b400 !important; border-left-width:4px !important;">
+                <div class="card-body p-3">
+                    <h6 class="fw-bold" style="color:#8b6500;"><i class="bi bi-lightbulb me-1"></i>Instructions</h6>
+                    <ul class="small text-muted mb-0 ps-3">
+                        <li>Select an employee to auto-fill position and department.</li>
+                        <li>Order ID is auto-generated (NTC-YYYY-NNNN format).</li>
+                        <li>Duration is auto-calculated from dates.</li>
+                        <li>Fill all required (*) fields before submitting.</li>
+                        <li>After creating, you can print the official form.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header py-2"><strong class="small text-primary">Status Guide</strong></div>
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-warning">Pending</span>
+                        <small class="text-muted">Order created, not started</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-primary">Active</span>
+                        <small class="text-muted">Employee currently traveling</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-success">Completed</span>
+                        <small class="text-muted">Travel completed</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger">Cancelled</span>
+                        <small class="text-muted">Order cancelled</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Employee data from Django
+    const employeesData = {{ employees_json|safe }};
+
+    // Auto-fill employee details when selected
+    function autoFillEmployee(empId) {
+        const emp = employeesData[empId];
+        if (emp) {
+            document.getElementById('display_emp_id').value = emp.employee_id;
+            document.getElementById('display_position').value = emp.position;
+            document.getElementById('display_department').value = emp.department;
+        } else {
+            document.getElementById('display_emp_id').value = '';
+            document.getElementById('display_position').value = '';
+            document.getElementById('display_department').value = '';
+        }
+    }
+
+    // Auto-calculate duration
+    function calculateDuration() {
+        const fromDate = document.getElementById('id_from_date').value;
+        const toDate = document.getElementById('id_to_date').value;
+        const durationField = document.getElementById('display_duration');
+
+        if (fromDate && toDate) {
+            const from = new Date(fromDate);
+            const to = new Date(toDate);
+            const diffTime = to - from;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+            if (diffDays > 0) {
+                durationField.value = diffDays + ' day(s)';
+                durationField.style.color = '#198754';
+            } else {
+                durationField.value = 'Invalid range';
+                durationField.style.color = '#dc3545';
+            }
+        }
+    }
+
+    // Trigger auto-fill on page load (for edit mode)
+    document.addEventListener('DOMContentLoaded', function () {
+        const empSelect = document.getElementById('id_employee');
+        if (empSelect && empSelect.value) {
+            autoFillEmployee(empSelect.value);
+        }
+
+        empSelect.addEventListener('change', function () {
+            autoFillEmployee(this.value);
+        });
+
+        document.getElementById('id_from_date').addEventListener('change', calculateDuration);
+        document.getElementById('id_to_date').addEventListener('change', calculateDuration);
+
+        // Trigger on load for edit mode
+        calculateDuration();
+    });
+</script>
+{% endblock %}

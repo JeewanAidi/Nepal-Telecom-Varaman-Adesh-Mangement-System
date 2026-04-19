@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Add Department{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3 px-4">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header py-2" style="background:#f0f4ff;">
+                    <strong class="text-primary"><i class="bi bi-building me-2"></i>Add New Department</strong>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Department Name <span class="text-danger">*</span></label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-ntc">
+                                <i class="bi bi-plus-circle me-1"></i>Add Department
+                            </button>
+                            <a href="{% url 'department_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

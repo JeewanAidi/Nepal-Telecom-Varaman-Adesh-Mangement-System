@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% block title %}{{ order.order_id }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3 px-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="fw-bold mb-0" style="color:#003087;">
+                <i class="bi bi-file-earmark-text me-2"></i>{{ order.order_id }}
+            </h4>
+            <small class="text-muted">
+                Travel Order Detail — {{ order.employee.name }} &rarr; {{ order.travel_location }}
+            </small>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'travel_order_print' order.pk %}" class="btn btn-outline-secondary" target="_blank">
+                <i class="bi bi-printer me-1"></i>Print
+            </a>
+            <a href="{% url 'travel_order_edit' order.pk %}" class="btn btn-primary">
+                <i class="bi bi-pencil me-1"></i>Edit
+            </a>
+            {% if user.is_staff %}
+            <a href="{% url 'travel_order_delete' order.pk %}" class="btn btn-outline-danger">
+                <i class="bi bi-trash me-1"></i>Delete
+            </a>
+            {% endif %}
+            <a href="{% url 'travel_order_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+        </div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="alert mb-3 d-flex align-items-center gap-3"
+         style="background:#f0f4ff; border-left:4px solid #003087; border-radius:10px;">
+        <div>
+            <strong>Status:</strong>
+            <span class="badge bg-{{ order.get_status_badge }} ms-1 badge-status">{{ order.status }}</span>
+        </div>
+        <div class="vr"></div>
+        <div><strong>Order ID:</strong> <code>{{ order.order_id }}</code></div>
+        <div class="vr"></div>
+        <div><strong>Duration:</strong> {{ order.get_duration_days }} day(s)</div>
+        <div class="vr"></div>
+        <div><strong>Issued:</strong> {{ order.date|date:"d F Y" }}</div>
+    </div>
+
+    <div class="row g-3">
+        <!-- LEFT: Main Details -->
+        <div class="col-lg-8">
+            <div class="card mb-3">
+                <div class="card-header py-2" style="background:#f0f4ff;">
+                    <strong class="text-primary"><i class="bi bi-person-badge me-1"></i>Employee Details</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm table-borderless mb-0">
+                                <tr>
+                                    <td class="text-muted small fw-semibold" style="width:40%">Employee ID</td>
+                                    <td><code>{{ order.employee.employee_id }}</code></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted small fw-semibold">Name</td>
+                                    <td class="fw-bold">{{ order.employee.name }}</td>
+                                </tr>
+                                {% if order.employee.name_nepali %}
+                                <tr>
+                                    <td class="text-muted small fw-semibold">Nepali Name</td>
+                                    <td>{{ order.employee.name_nepali }}</td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm table-borderless mb-0">
+                                <tr>
+                                    <td class="text-muted small fw-semibold" style="width:40%">Position</td>
+                                    <td>{{ order.employee.position }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted small fw-semibold">Department</td>
+                                    <td>{{ order.employee.get_department_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted small fw-semibold">Phone</td>
+                                    <td>{{ order.employee.phone|default:"-" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header py-2" style="background:#f0f4ff;">
+                    <strong class="text-primary"><i class="bi bi-geo-alt me-1"></i>Travel Details</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <small class="text-muted fw-semibold d-block">Travel Location</small>
+                            <div class="fw-bold">{{ order.travel_location }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted fw-semibold d-block">Transport</small>
+                            <div>{{ order.get_transport_type_display }}
+                                {% if order.vehicle_number %}
+                                <span class="text-muted small">({{ order.vehicle_number }})</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted fw-semibold d-block">From Date</small>
+                            <div class="fw-bold text-success">{{ order.from_date|date:"d F Y" }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted fw-semibold d-block">To Date</small>
+                            <div class="fw-bold text-danger">{{ order.to_date|date:"d F Y" }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted fw-semibold d-block">Duration</small>
+                            <div class="fw-bold">{{ order.get_duration_days }} Day(s)</div>
+                        </div>
+                        <div class="col-md-12">
+                            <small class="text-muted fw-semibold d-block">Purpose</small>
+                            <div class="p-2 rounded" style="background:#f8f9fa;">{{ order.purpose }}</div>
+                        </div>
+                        <div class="col-md-12">
+                            <small class="text-muted fw-semibold d-block">Work Description</small>
+                            <div class="p-2 rounded" style="background:#f8f9fa;">{{ order.work_description }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+        <div class="col-lg-4">
+            <!-- Quick Status Update -->
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <strong class="small text-primary">Quick Status Update</strong>
+                </div>
+                <div class="card-body p-3">
+                    <div class="d-grid gap-2">
+                        {% for status_key, status_label in order.STATUS_CHOICES %}
+                        <form method="POST" action="{% url 'travel_order_status' order.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="{{ status_key }}">
+                            <button type="submit"
+                                class="btn btn-sm w-100 {% if order.status == status_key %}btn-dark{% else %}btn-outline-secondary{% endif %}">
+                                {% if order.status == status_key %}<i class="bi bi-check2 me-1"></i>{% endif %}
+                                {{ status_label }}
+                            </button>
+                        </form>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Approval Info -->
+            <div class="card mb-3">
+                <div class="card-header py-2"><strong class="small text-primary">Approval & Remarks</strong></div>
+                <div class="card-body p-3">
+                    <div class="mb-2">
+                        <small class="text-muted fw-semibold d-block">Approved By</small>
+                        <div>{{ order.approved_by|default:"Not specified" }}</div>
+                    </div>
+                    {% if order.remarks %}
+                    <div>
+                        <small class="text-muted fw-semibold d-block">Remarks</small>
+                        <div class="p-2 rounded" style="background:#f8f9fa; font-size:0.85rem;">{{ order.remarks }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Record Info -->
+            <div class="card">
+                <div class="card-header py-2"><strong class="small text-primary">Record Info</strong></div>
+                <div class="card-body p-3">
+                    <table class="table table-sm table-borderless mb-0">
+                        <tr>
+                            <td class="text-muted small">Created</td>
+                            <td class="small">{{ order.created_at|date:"d M Y H:i" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted small">Updated</td>
+                            <td class="small">{{ order.updated_at|date:"d M Y H:i" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

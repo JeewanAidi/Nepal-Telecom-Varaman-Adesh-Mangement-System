@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3 px-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="fw-bold mb-0" style="color:#003087;">
+                <i class="bi bi-person-{% if action == 'Add' %}plus{% else %}pencil{% endif %} me-2"></i>{{ title }}
+            </h4>
+            <small class="text-muted">Fill in the employee details below</small>
+        </div>
+        <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header py-2" style="background:#f0f4ff;">
+                    <strong class="text-primary"><i class="bi bi-person-badge me-2"></i>Employee Information</strong>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <div class="form-section-header">Basic Information</div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">{{ form.employee_id.label }} <span class="text-danger">*</span></label>
+                                {{ form.employee_id }}
+                                {% if form.employee_id.errors %}<div class="text-danger small mt-1">{{ form.employee_id.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">{{ form.name.label }} <span class="text-danger">*</span></label>
+                                {{ form.name }}
+                                {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">{{ form.name_nepali.label }}</label>
+                                {{ form.name_nepali }}
+                            </div>
+                        </div>
+
+                        <div class="form-section-header">Job Details</div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">{{ form.position.label }} <span class="text-danger">*</span></label>
+                                {{ form.position }}
+                                {% if form.position.errors %}<div class="text-danger small mt-1">{{ form.position.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">{{ form.department.label }}</label>
+                                {{ form.department }}
+                                <div class="mt-1">
+                                    <a href="{% url 'department_add' %}" class="small text-primary" target="_blank">
+                                        <i class="bi bi-plus-circle"></i> Add new department
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section-header">Contact Information</div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">{{ form.phone.label }}</label>
+                                {{ form.phone }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">{{ form.email.label }}</label>
+                                {{ form.email }}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label fw-semibold" for="id_is_active">
+                                    Active Employee (uncheck to deactivate)
+                                </label>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-ntc px-4">
+                                <i class="bi bi-check-circle me-2"></i>{{ action }} Employee
+                            </button>
+                            <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

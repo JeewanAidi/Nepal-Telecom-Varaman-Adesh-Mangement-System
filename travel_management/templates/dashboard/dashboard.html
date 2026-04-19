@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3 px-4">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="fw-bold mb-0" style="color:#003087;"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h4>
+            <small class="text-muted">Nepal Telecom Mahendranagar Branch — भ्रमण आदेश व्यवस्थापन</small>
+        </div>
+        <a href="{% url 'travel_order_create' %}" class="btn btn-ntc">
+            <i class="bi bi-plus-circle me-1"></i> New Travel Order
+        </a>
+    </div>
+
+    <!-- STAT CARDS ROW 1 -->
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="stat-card stat-blue">
+                <div class="stat-icon"><i class="bi bi-card-list"></i></div>
+                <div class="stat-number mt-1">{{ total_orders }}</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="stat-card stat-orange">
+                <div class="stat-icon"><i class="bi bi-clock-history"></i></div>
+                <div class="stat-number mt-1">{{ pending_trips }}</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="stat-card" style="background: linear-gradient(135deg,#0055a5,#0077cc);">
+                <div class="stat-icon"><i class="bi bi-airplane"></i></div>
+                <div class="stat-number mt-1">{{ active_trips }}</div>
+                <div class="stat-label">Active Trips</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="stat-card stat-green">
+                <div class="stat-icon"><i class="bi bi-check2-circle"></i></div>
+                <div class="stat-number mt-1">{{ completed_trips }}</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="stat-card stat-red">
+                <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
+                <div class="stat-number mt-1">{{ cancelled_trips }}</div>
+                <div class="stat-label">Cancelled</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="stat-card stat-purple">
+                <div class="stat-icon"><i class="bi bi-people"></i></div>
+                <div class="stat-number mt-1">{{ total_employees }}</div>
+                <div class="stat-label">Employees</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- THIS MONTH ALERT -->
+    <div class="alert mb-3" style="background:#e8f4fd; border-left:4px solid #003087; border-radius:10px;">
+        <i class="bi bi-calendar-check me-2" style="color:#003087;"></i>
+        <strong>This Month:</strong> {{ this_month_orders }} travel order(s) issued in {% now "F Y" %}.
+    </div>
+
+    <!-- RECENT ORDERS + DEPT STATS -->
+    <div class="row g-3">
+        <!-- Recent Travel Orders -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center py-2">
+                    <span class="fw-semibold" style="color:#003087;"><i class="bi bi-clock me-2"></i>Recent Travel Orders</span>
+                    <a href="{% url 'travel_order_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_orders %}
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Employee</th>
+                                    <th>Destination</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td><code class="text-primary fw-bold">{{ order.order_id }}</code></td>
+                                    <td>
+                                        <div class="fw-semibold" style="font-size:0.85rem;">{{ order.employee.name }}</div>
+                                        <small class="text-muted">{{ order.employee.position }}</small>
+                                    </td>
+                                    <td>{{ order.travel_location }}</td>
+                                    <td>{{ order.from_date|date:"d M Y" }}</td>
+                                    <td>{{ order.to_date|date:"d M Y" }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ order.get_status_badge }} badge-status">
+                                            {{ order.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'travel_order_detail' order.pk %}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox display-4"></i>
+                        <p class="mt-2">No travel orders yet.</p>
+                        <a href="{% url 'travel_order_create' %}" class="btn btn-ntc btn-sm">Create First Order</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions + Dept Stats -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <span class="fw-semibold" style="color:#003087;"><i class="bi bi-lightning me-2"></i>Quick Actions</span>
+                </div>
+                <div class="card-body p-2">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'travel_order_create' %}" class="btn btn-ntc">
+                            <i class="bi bi-plus-circle me-2"></i>New Travel Order
+                        </a>
+                        <a href="{% url 'employee_add' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-person-plus me-2"></i>Add Employee
+                        </a>
+                        <a href="{% url 'travel_order_list' %}?status=Pending" class="btn btn-outline-warning">
+                            <i class="bi bi-clock me-2"></i>View Pending Orders
+                        </a>
+                        <a href="{% url 'travel_order_list' %}?status=Active" class="btn btn-outline-info">
+                            <i class="bi bi-airplane me-2"></i>Active Trips
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Department Stats -->
+            {% if dept_stats %}
+            <div class="card">
+                <div class="card-header py-2">
+                    <span class="fw-semibold" style="color:#003087;"><i class="bi bi-building me-2"></i>Orders by Department</span>
+                </div>
+                <div class="card-body p-3">
+                    {% for dept in dept_stats %}
+                    {% if dept.order_count > 0 %}
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="fw-semibold">{{ dept.name }}</small>
+                            <small class="text-muted">{{ dept.order_count }}</small>
+                        </div>
+                        <div class="progress" style="height:6px; border-radius:10px;">
+                            <div class="progress-bar" style="width:{% widthratio dept.order_count total_orders 100 %}%; background:#003087;"></div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Departments{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3 px-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="fw-bold mb-0" style="color:#003087;"><i class="bi bi-building me-2"></i>Departments</h4>
+            <small class="text-muted">Manage Nepal Telecom branch departments</small>
+        </div>
+        <a href="{% url 'department_add' %}" class="btn btn-ntc">
+            <i class="bi bi-plus-circle me-1"></i> Add Department
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body p-0">
+                    {% if departments %}
+                    <table class="table table-custom table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Department Name</th>
+                                <th>No. of Employees</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dept in departments %}
+                            <tr>
+                                <td class="text-muted small">{{ forloop.counter }}</td>
+                                <td class="fw-semibold">{{ dept.name }}</td>
+                                <td>
+                                    <span class="badge bg-primary">{{ dept.employee_count }} employee(s)</span>
+                                </td>
+                                <td>
+                                    {% if user.is_staff %}
+                                    <a href="{% url 'department_delete' dept.pk %}"
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Delete department {{ dept.name }}?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-building display-4"></i>
+                        <p class="mt-2">No departments created yet.</p>
+                        <a href="{% url 'department_add' %}" class="btn btn-ntc btn-sm">Add First Department</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

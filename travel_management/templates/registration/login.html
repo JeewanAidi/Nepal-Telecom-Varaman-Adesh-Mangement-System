@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | NTC Travel Management - Mahendranagar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #001f5c 0%, #003087 50%, #001f5c 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 440px;
+            padding: 1.5rem;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #003087, #001f5c);
+            padding: 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .ntc-logo {
+            width: 70px;
+            height: 70px;
+            background: #c0002a;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: white;
+            margin: 0 auto 1rem;
+            box-shadow: 0 4px 15px rgba(192,0,42,0.4);
+        }
+
+        .login-header h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .login-header p {
+            font-family: 'Mukta', sans-serif;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin: 0.3rem 0 0;
+        }
+
+        .login-body { padding: 2rem; }
+
+        .form-control {
+            border-radius: 10px;
+            padding: 0.65rem 1rem;
+            border: 2px solid #e9ecef;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #003087;
+            box-shadow: 0 0 0 3px rgba(0,48,135,0.1);
+        }
+
+        .input-group-text {
+            border-radius: 10px 0 0 10px;
+            background: #f0f4ff;
+            border: 2px solid #e9ecef;
+            border-right: none;
+            color: #003087;
+        }
+
+        .input-group .form-control {
+            border-radius: 0 10px 10px 0;
+            border-left: none;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #003087, #0052cc);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: white;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0,48,135,0.35);
+            color: white;
+        }
+
+        .login-footer {
+            background: #f8f9fa;
+            padding: 1rem 2rem;
+            text-align: center;
+            font-size: 0.78rem;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .flag-bar {
+            height: 6px;
+            background: linear-gradient(to right, #c0002a 33%, #003087 33%, #003087 66%, #c0002a 66%);
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="flag-bar"></div>
+        <div class="login-header">
+            <div class="ntc-logo">NTC</div>
+            <h1>Nepal Telecom</h1>
+            <p>भ्रमण आदेश व्यवस्थापन प्रणाली</p>
+            <p>Travel Order Management System</p>
+            <small style="opacity:0.6;">Mahendranagar Branch</small>
+        </div>
+
+        <div class="login-body">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'danger' }} alert-dismissible" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <h5 class="mb-1 fw-bold" style="color:#003087;">Sign In</h5>
+            <p class="text-muted mb-3" style="font-size:0.82rem;">Use your NTC system credentials</p>
+
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:0.85rem;">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                        {{ form.username }}
+                    </div>
+                    {% if form.username.errors %}
+                        <div class="text-danger small mt-1">{{ form.username.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold" style="font-size:0.85rem;">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        {{ form.password }}
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="text-danger small mt-1">{{ form.password.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Login to System
+                </button>
+            </form>
+        </div>
+
+        <div class="login-footer">
+            &copy; {% now "Y" %} Nepal Telecom Corporation Ltd. &nbsp;|&nbsp; Mahendranagar Branch<br>
+            For support contact your system administrator.
+        </div>
+        <div class="flag-bar"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
