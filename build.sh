@@ -5,19 +5,22 @@ echo "============================================"
 echo "  NTC Travel Management — Render Build"
 echo "============================================"
 
-echo "[1/5] Installing dependencies..."
+echo "[1/6] Installing dependencies..."
 pip install -r requirements.txt
 
-echo "[2/5] Creating staticfiles directory..."
+echo "[2/6] Creating staticfiles directory..."
 mkdir -p staticfiles
 
-echo "[3/5] Collecting static files..."
+echo "[3/6] Collecting static files..."
 python manage.py collectstatic --no-input --clear
 
-echo "[4/5] Running database migrations..."
+echo "[4/6] Making migrations..."
+python manage.py makemigrations
+
+echo "[5/6] Running database migrations..."
 python manage.py migrate
 
-echo "[5/5] Seeding initial data..."
+echo "[6/6] Seeding initial data..."
 python manage.py seed_data
 
 echo ""
