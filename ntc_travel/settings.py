@@ -2,9 +2,9 @@
 Django settings for ntc_travel project.
 Nepal Telecom Travel Order Management System
 
-Environment-aware settings:
-  - Local development: SQLite (no .env needed)
-  - Production (Render): PostgreSQL via DATABASE_URL env variable
+Environment-aware:
+  - Local: SQLite, DEBUG=True
+  - Render: PostgreSQL via DATABASE_URL, DEBUG=False
 """
 
 from pathlib import Path
@@ -12,38 +12,25 @@ import os
 import dj_database_url
 from dotenv import load_dotenv
 
-# Load .env file for local development
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ─────────────────────────────────────────────────────────
-# SECURITY
-# ─────────────────────────────────────────────────────────
-# On Render, set SECRET_KEY in environment variables.
-# Locally, it falls back to the insecure default.
+# ── SECURITY ─────────────────────────────────────────────
 SECRET_KEY = os.environ.get(
     'SECRET_KEY',
     'django-insecure-ntc-mahendranagar-travel-management-2024-secret-key'
 )
 
-# DEBUG: True locally, False on Render (set DEBUG=False in Render env vars)
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-# Allow localhost + Render domain
-ALLOWED_HOSTS = os.environ.get(
-    'ALLOWED_HOSTS',
-    '127.0.0.1,localhost'
-).split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
-# Always allow Render's internal domains
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-# ─────────────────────────────────────────────────────────
-# INSTALLED APPS
-# ─────────────────────────────────────────────────────────
+# ── APPS ─────────────────────────────────────────────────
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -54,12 +41,10 @@ INSTALLED_APPS = [
     'travel_management',
 ]
 
-# ─────────────────────────────────────────────────────────
-# MIDDLEWARE — WhiteNoise must be right after SecurityMiddleware
-# ─────────────────────────────────────────────────────────
+# ── MIDDLEWARE ────────────────────────────────────────────
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',   # ← Render static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -88,11 +73,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ntc_travel.wsgi.application'
 
-# ─────────────────────────────────────────────────────────
-# DATABASE
-# ─────────────────────────────────────────────────────────
-# If DATABASE_URL is set (Render provides this automatically for PostgreSQL),
-# use PostgreSQL. Otherwise fall back to local SQLite for development.
+# ── DATABASE ──────────────────────────────────────────────
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
@@ -100,7 +81,7 @@ if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
-            conn_max_age=600,        # Keep connections alive for 10 minutes
+            conn_max_age=600,
             conn_health_checks=True,
         )
     }
@@ -113,9 +94,7 @@ else:
         }
     }
 
-# ─────────────────────────────────────────────────────────
-# PASSWORD VALIDATORS
-# ─────────────────────────────────────────────────────────
+# ── PASSWORD VALIDATORS ───────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -123,48 +102,39 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# ─────────────────────────────────────────────────────────
-# LOCALISATION
-# ─────────────────────────────────────────────────────────
+# ── LOCALISATION ──────────────────────────────────────────
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Kathmandu'
 USE_I18N = True
 USE_TZ = True
 
-# ─────────────────────────────────────────────────────────
-# STATIC FILES — WhiteNoise serves them on Render
-# ─────────────────────────────────────────────────────────
+# ── STATIC FILES ──────────────────────────────────────────
 STATIC_URL = '/static/'
 
-# Folder where your app's static files live (CSS, JS, images)
-STATICFILES_DIRS = [
-    BASE_DIR / 'travel_management' / 'static',
-]
+# Only add STATICFILES_DIRS if the folder actually exists
+_static_dir = BASE_DIR / 'travel_management' / 'static'
+if _static_dir.exists():
+    STATICFILES_DIRS = [_static_dir]
+else:
+    STATICFILES_DIRS = []
 
-# Folder where `collectstatic` gathers everything for production
+# Where collectstatic puts everything
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# WhiteNoise compression + caching for production
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Use simple WhiteNoise storage (NOT CompressedManifest — avoids missing-file errors)
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
-# ─────────────────────────────────────────────────────────
-# MEDIA FILES
-# ─────────────────────────────────────────────────────────
+# ── MEDIA FILES ───────────────────────────────────────────
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# ─────────────────────────────────────────────────────────
-# AUTH REDIRECTS
-# ─────────────────────────────────────────────────────────
+# ── AUTH ──────────────────────────────────────────────────
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-# ─────────────────────────────────────────────────────────
-# SECURITY HEADERS (enforced in production only)
-# ─────────────────────────────────────────────────────────
+# ── PRODUCTION SECURITY (only when DEBUG=False) ───────────
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
