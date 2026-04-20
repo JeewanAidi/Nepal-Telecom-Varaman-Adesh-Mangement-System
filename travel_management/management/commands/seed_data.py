@@ -1,27 +1,41 @@
 """
 Management command: seed_data
 Seeds initial departments, sample employees, and an admin user.
-This command is IDEMPOTENT — safe to run on every Render deploy.
-Run: python manage.py seed_data
+Safe to run on every Render deploy (idempotent).
 """
 
 import os
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from travel_management.models import Department, Employee
+from django.db import connection
+
+
+def table_exists(table_name):
+    """Check if a database table exists before querying it."""
+    return table_name in connection.introspection.table_names()
 
 
 class Command(BaseCommand):
-    help = 'Seed initial data: admin user, departments, sample employees (idempotent)'
+    help = 'Seed initial data (idempotent)'
 
     def handle(self, *args, **kwargs):
-        self.stdout.write('\n Seeding initial data for NTC Travel Management System...\n')
+        self.stdout.write('\nSeeding initial data...\n')
+
+        # Safety check — make sure migrations have run first
+        if not table_exists('travel_management_department'):
+            self.stdout.write(self.style.ERROR(
+                'Tables do not exist yet. Run migrations first: python manage.py migrate'
+            ))
+            return
+
+        # Import models only after confirming tables exist
+        from travel_management.models import Department, Employee
 
         admin_username = os.environ.get('ADMIN_USERNAME', 'admin')
         admin_password = os.environ.get('ADMIN_PASSWORD', 'admin123')
         admin_email    = os.environ.get('ADMIN_EMAIL', 'admin@ntc.net.np')
 
-        # 1. Create or Update Admin User
+        # 1. Create or update admin user
         user, created = User.objects.get_or_create(username=admin_username)
         user.set_password(admin_password)
         user.email = admin_email
@@ -32,11 +46,11 @@ class Command(BaseCommand):
         user.save()
 
         if created:
-            self.stdout.write(self.style.SUCCESS(f'Admin user created: {admin_username} / {admin_password}'))
+            self.stdout.write(self.style.SUCCESS(f'Admin created: {admin_username} / {admin_password}'))
         else:
-            self.stdout.write(self.style.WARNING(f'Admin user already exists ({admin_username}), password refreshed.'))
+            self.stdout.write(self.style.WARNING(f'Admin already exists: {admin_username}'))
 
-        # 2. Create Departments
+        # 2. Create departments
         departments_data = [
             'Technical Division',
             'Commercial Division',
@@ -53,9 +67,9 @@ class Command(BaseCommand):
             dept, created = Department.objects.get_or_create(name=dept_name)
             created_depts[dept_name] = dept
             if created:
-                self.stdout.write(self.style.SUCCESS(f'Department created: {dept_name}'))
+                self.stdout.write(self.style.SUCCESS(f'Department: {dept_name}'))
 
-        # 3. Create Sample Employees
+        # 3. Create sample employees
         sample_employees = [
             {
                 'employee_id': 'NTC-001',
@@ -121,10 +135,9 @@ class Command(BaseCommand):
                 defaults={**emp_data, 'department': dept}
             )
             if created:
-                self.stdout.write(self.style.SUCCESS(f'Employee created: {emp.name} ({emp.employee_id})'))
+                self.stdout.write(self.style.SUCCESS(f'Employee: {emp.name} ({emp.employee_id})'))
             else:
-                self.stdout.write(self.style.WARNING(f'Employee already exists: {emp.name}'))
+                self.stdout.write(self.style.WARNING(f'Already exists: {emp.name}'))
 
-        self.stdout.write(self.style.SUCCESS('\nData seeding complete!\n'))
-        self.stdout.write(f'  Username : {admin_username}')
-        self.stdout.write(f'  Password : {admin_password}\n')
+        self.stdout.write(self.style.SUCCESS('\nSeeding complete!\n'))
+        self.stdout.write(f'  Login: {admin_username} / {admin_password}\n')
