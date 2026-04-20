@@ -1,1 +1,7 @@
-
+/* Nepal Telecom Travel Management - Custom Styles */
+body {
+    font-family: 'Inter', 'Mukta', sans-serif;
+}
+@media print {
+    .print-controls { display: none !important; }
+}
